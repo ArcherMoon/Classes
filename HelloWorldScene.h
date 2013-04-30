@@ -2,6 +2,7 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+#include "Box2D/Box2D.h"
 
 class HelloWorld : public cocos2d::CCLayer
 {
@@ -17,6 +18,9 @@ public:
 
     // implement the "static node()" method manually
     CREATE_FUNC(HelloWorld);
+
+private:
+    b2World *world; /* 物理世界 */
 };
 
 #endif // __HELLOWORLD_SCENE_H__
