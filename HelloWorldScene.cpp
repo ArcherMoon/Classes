@@ -104,7 +104,7 @@ bool HelloWorld::init()
     b2BodyDef groundBodyDef;
     groundBodyDef.position.Set(0,0);
 
-    b2Body * groundBody = world->CreateBody(&groundBodyDef);
+    groundBody = world->CreateBody(&groundBodyDef);
 
     b2EdgeShape groundBox;
 
@@ -141,7 +141,7 @@ bool HelloWorld::init()
     armBodyDef.position.Set(450.0f/PTM_RATIO, (FLOOR_HEIGHT + 182.0f)/PTM_RATIO);
     armBodyDef.userData = (void *)arm;
 
-    b2Body *armBody = world->CreateBody(&armBodyDef);
+    armBody = world->CreateBody(&armBodyDef);
 
     b2PolygonShape armShape;
     /* 设置相对于物体中心点的x，y方向的距离，生成真正的形状 */
@@ -163,7 +163,11 @@ bool HelloWorld::init()
     armJointDef.enableMotor = true;                                               /* 使能马达，或是弹簧? */
     armJointDef.maxMotorTorque = 4800;                                       /* 最大扭矩 */
     armJointDef.motorSpeed = -10;                                               /* 马达速度 */
-    armJoint = (b2RevoluteJoint *)world->CreateJoint(&armJointDef);
+    armJoint = (b2RevoluteJoint *)world->CreateJoint(&armJointDef);   
+
+    /* 初始化鼠标关节指针为空，使能触摸 */
+    mouseJoint = NULL;
+    this->setTouchEnabled(true);
 
     /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
     this->schedule(schedule_selector(HelloWorld::tick));
@@ -188,6 +192,65 @@ void HelloWorld::tick(float dt)
             sprite->setRotation(-1 * CC_RADIANS_TO_DEGREES(body->GetAngle()));
         }
     }
+}
+
+void HelloWorld::ccTouchesBegan(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent)
+{
+    /* 如果已经有鼠标关节说明正在移动中，返回 */
+    if (NULL != mouseJoint)
+    {
+        return;
+    }
+    
+    /* 取得任一touch */
+    CCTouch *touch = (CCTouch *)pTouches->anyObject();
+    /* 获取坐标 */
+    CCPoint location = touch->getLocation();
+    /* 转化为box2d坐标 */
+    b2Vec2 target = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+
+    /* 创建鼠标关节 */
+    if (target.x < armBody->GetWorldCenter().x + 150.0f/PTM_RATIO)
+    {
+        b2MouseJointDef mouceJointDef;
+        /* 这里的bodyA,bodyB是结构体b2MouseJointDef从b2JointDef继承而来 */
+        mouceJointDef.bodyA = groundBody;
+        mouceJointDef.bodyB = armBody;
+        mouceJointDef.target = target;
+        mouceJointDef.maxForce = 2000;
+        mouseJoint = (b2MouseJoint *)world->CreateJoint(&mouceJointDef);
+    }
+}
+
+void HelloWorld::ccTouchesMoved(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent)
+{
+    /* 如果没有鼠标关节直接返回 */
+    if (NULL == mouseJoint)
+    {
+        return;
+    }
+    
+    /* 取得任一touch */
+    CCTouch *touch = (CCTouch *)pTouches->anyObject();
+    /* 获取坐标 */
+    CCPoint location = touch->getLocation();
+    /* 转化为box2d坐标 */
+    b2Vec2 target = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+
+    /* 修改鼠标关节target的值 */
+    mouseJoint->SetTarget(target);
+    return;
+}
+
+void HelloWorld::ccTouchesEnded(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent)
+{
+    /* 销毁鼠标关节 */
+    if (NULL != mouseJoint)
+    {
+        world->DestroyJoint(mouseJoint);
+        mouseJoint = NULL;
+    }
+    return;       
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)

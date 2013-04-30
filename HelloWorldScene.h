@@ -22,9 +22,17 @@ public:
     /* 定时器回调函数 */
     void tick(float dt );
 
+    /* 实现Layer的触摸开始，移动，结束方法 */
+    void ccTouchesBegan(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
+    void ccTouchesMoved(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
+    void ccTouchesEnded(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
+
 private:
-    b2World *world; /* 物理世界 */
-    b2RevoluteJoint *armJoint;
+    b2World *world;                  /* 物理世界 */
+    b2Body * groundBody;
+    b2Body *armBody;
+    b2RevoluteJoint *armJoint;  /* 弹臂与地面的旋转关节 */
+    b2MouseJoint *mouseJoint;   /* 鼠标关节，将物体移动到指定点 */
 };
 
 #endif // __HELLOWORLD_SCENE_H__
