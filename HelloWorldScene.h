@@ -24,6 +24,7 @@ public:
 
 private:
     b2World *world; /* 物理世界 */
+    b2RevoluteJoint *armJoint;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

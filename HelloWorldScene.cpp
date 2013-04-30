@@ -153,6 +153,18 @@ bool HelloWorld::init()
 
     armBody->CreateFixture(&armFixDef);
 
+    /* 创建弹臂和地面的旋转关节 */
+    b2RevoluteJointDef armJointDef;
+    /* 设置关节链接的两个物体及连接点 */
+    armJointDef.Initialize(groundBody, armBody, b2Vec2(450.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
+    armJointDef.enableLimit = true;                                                /* 限制旋转角度 */
+    armJointDef.lowerAngle = CC_DEGREES_TO_RADIANS(9);       /* 最小角度,相对于y轴? */
+    armJointDef.upperAngle = CC_DEGREES_TO_RADIANS(75);     /* 最大角度 */
+    armJointDef.enableMotor = true;                                               /* 使能马达，或是弹簧? */
+    armJointDef.maxMotorTorque = 4800;                                       /* 最大扭矩 */
+    armJointDef.motorSpeed = -10;                                               /* 马达速度 */
+    armJoint = (b2RevoluteJoint *)world->CreateJoint(&armJointDef);
+
     /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
     this->schedule(schedule_selector(HelloWorld::tick));
     
