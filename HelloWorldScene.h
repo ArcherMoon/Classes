@@ -19,6 +19,9 @@ public:
     // implement the "static node()" method manually
     CREATE_FUNC(HelloWorld);
 
+    /* 定时器回调函数 */
+    void tick(float dt );
+
 private:
     b2World *world; /* 物理世界 */
 };

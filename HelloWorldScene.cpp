@@ -99,8 +99,8 @@ bool HelloWorld::init()
     world->SetAllowSleeping(true);
 
     /* 创造地面物体，
-   * 定义物体(BodyDef)，由world根据BodyDef创造body，创造形状(shape)，定义夹具(FixtureDef)，指向shape,
-   * 由body根据FixtureDef创造Fixture */
+   * 定义物体(BodyDef)，由world根据BodyDef创造body，创造形状(shape)，
+   * 定义夹具(FixtureDef)，指向shape, 由body根据FixtureDef创造Fixture */
     b2BodyDef groundBodyDef;
     groundBodyDef.position.Set(0,0);
 
@@ -110,11 +110,13 @@ bool HelloWorld::init()
 
     CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
     /* bottom */
-    groundBox.Set(b2Vec2(0, FLOOR_HEIGHT/PTM_RATIO), b2Vec2(screenSize.width * 2.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
+    groundBox.Set(b2Vec2(0, FLOOR_HEIGHT/PTM_RATIO), 
+                          b2Vec2(screenSize.width * 2.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
     groundBody->CreateFixture(&groundBox,0);
 
      /* top */
-    groundBox.Set(b2Vec2(0, screenSize.height/PTM_RATIO), b2Vec2(screenSize.width * 2.0f/PTM_RATIO, screenSize.height/PTM_RATIO));
+    groundBox.Set(b2Vec2(0, screenSize.height/PTM_RATIO), 
+                          b2Vec2(screenSize.width * 2.0f/PTM_RATIO, screenSize.height/PTM_RATIO));
     groundBody->CreateFixture(&groundBox,0);
     
      /* left */
@@ -122,12 +124,58 @@ bool HelloWorld::init()
     groundBody->CreateFixture(&groundBox,0);
 
      /* right */
-    groundBox.Set(b2Vec2(screenSize.width * 2.0f/PTM_RATIO,  0), b2Vec2(screenSize.width * 2.0f/PTM_RATIO,  screenSize.height/PTM_RATIO));
+    groundBox.Set(b2Vec2(screenSize.width * 2.0f/PTM_RATIO,  0),
+                          b2Vec2(screenSize.width * 2.0f/PTM_RATIO,  screenSize.height/PTM_RATIO));
     groundBody->CreateFixture(&groundBox,0);    
     
     /* 创造一般物体 */
+    /* 创建弹臂精灵 */
+    CCSprite * arm = CCSprite::create("catapult_arm-hd.png");
+    this->addChild(arm,  1);
+
+    /* 创建弹臂对应的物理body */
+    b2BodyDef armBodyDef;
+    armBodyDef.type =b2_dynamicBody;
+    armBodyDef.linearDamping = 1.0f;
+    armBodyDef.angularDamping = 1.0f;
+    armBodyDef.position.Set(450.0f/PTM_RATIO, (FLOOR_HEIGHT + 182.0f)/PTM_RATIO);
+    armBodyDef.userData = (void *)arm;
+
+    b2Body *armBody = world->CreateBody(&armBodyDef);
+
+    b2PolygonShape armShape;
+    /* 设置相对于物体中心点的x，y方向的距离，生成真正的形状 */
+    armShape.SetAsBox(11.0f/PTM_RATIO, 182.0f/PTM_RATIO);
+
+    b2FixtureDef armFixDef;
+    armFixDef.shape = &armShape;
+    armFixDef.density = 0.3f;
+
+    armBody->CreateFixture(&armFixDef);
+
+    /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
+    this->schedule(schedule_selector(HelloWorld::tick));
     
     return true;
+}
+
+void HelloWorld::tick(float dt)
+{
+    /* 更新物理世界的step */
+    int velocityIterations = 8;
+    int positionIterations = 1;
+    world->Step(dt, velocityIterations,  positionIterations);
+
+    CCSprite * sprite;
+    for (b2Body *body = world->GetBodyList(); NULL != body; body = body->GetNext())
+    {
+        if (NULL != body->GetUserData())
+        {
+            sprite = (CCSprite *)body->GetUserData();
+            sprite->setPosition(CCPointMake(body->GetPosition().x * PTM_RATIO, body->GetPosition().y * PTM_RATIO));
+            sprite->setRotation(-1 * CC_RADIANS_TO_DEGREES(body->GetAngle()));
+        }
+    }
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
