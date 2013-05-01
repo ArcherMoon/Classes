@@ -212,6 +212,23 @@ void HelloWorld::tick(float dt)
             }
     }
 
+    /* 判断炮弹是否在屏幕中心点的右边，移动视角 */
+    if (NULL != bulletBody && NULL == bulletJoint)
+    {
+        /* 取得炮弹中心点 */
+        b2Vec2 position = bulletBody->GetPosition();
+        /* 取得layer的坐标,从ccNode继承getPosition */
+        CCPoint myPosition = this->getPosition();
+        /* 取得屏幕宽度 */
+        CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
+
+        if (position.x > screenSize.width /2.0f /PTM_RATIO)
+        {
+             /* 设置layer的新坐标,从ccNode继承setPosition */
+             myPosition.x = -MIN(screenSize.width * 2.0f - screenSize.width, position.x * PTM_RATIO - screenSize.width /2.0f);
+             this->setPosition(myPosition);
+        }   
+    }
 }
 
 void HelloWorld::ccTouchesBegan(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent)
