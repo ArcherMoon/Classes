@@ -112,6 +112,7 @@ bool HelloWorld::init()
     b2EdgeShape groundBox;
 
     CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
+    CCLOG("屏幕宽= %d, 高= %d.", screenSize.width, screenSize.height);
     /* bottom */
     groundBox.Set(b2Vec2(0, FLOOR_HEIGHT/PTM_RATIO), 
                           b2Vec2(screenSize.width * 2.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
@@ -178,7 +179,6 @@ bool HelloWorld::init()
     attachBullet();
 
     this->createTarges();
-    this->setPosition(CCPointMake(-960, 0));
     /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
     this->schedule(schedule_selector(HelloWorld::tick));
     
@@ -425,8 +425,34 @@ void HelloWorld::createTarget(const char * imageName, CCPoint position, float ro
 
 void HelloWorld::createTarges()
 {
-    createTarget("brick_2-hd.png", CCPointMake(675.0 * 2, FLOOR_HEIGHT), 0.0f, false, false, false);
-        return;
+    createTarget("brick_2-hd.png", CCPointMake(675.0 * 2, FLOOR_HEIGHT), 0.0f, false, false, false); 
+    createTarget("brick_1-hd.png", CCPointMake(741.0 * 2, FLOOR_HEIGHT), 0.0f, false, false, false); 
+    createTarget("brick_1-hd.png", CCPointMake(741.0 * 2, FLOOR_HEIGHT+45.0), 0.0f, false, false, false); 
+    createTarget("brick_3-hd.png", CCPointMake(673.0 * 2, FLOOR_HEIGHT+92.0), 0.0f, false, false, false); 
+    createTarget("brick_1-hd.png", CCPointMake(707.0 * 2, FLOOR_HEIGHT+115.0), 0.0f, false, false, false); 
+    createTarget("brick_1-hd.png", CCPointMake(707.0 * 2, FLOOR_HEIGHT+160.0), 0.0f, false, false, false); 
+ 
+    createTarget("head_dog-hd.png", CCPointMake(702.0 * 2, FLOOR_HEIGHT), 0.0f, true, false, true); 
+    createTarget("head_cat-hd.png", CCPointMake(680.0 * 2, FLOOR_HEIGHT+115.0), 0.0f, true, false, true); 
+    createTarget("head_dog-hd.png", CCPointMake(740.0 * 2, FLOOR_HEIGHT+115.0), 0.0f, true, false, true); 
+ 
+    // 2 bricks at the right of the first block 
+    createTarget("brick_2-hd.png", CCPointMake(770.0 * 2, FLOOR_HEIGHT), 0.0f, false, false, false); 
+    createTarget("brick_2-hd.png", CCPointMake(770.0 * 2, FLOOR_HEIGHT+92.0), 0.0f, false, false, false); 
+ 
+    // The dog between the blocks 
+    createTarget("head_dog-hd.png", CCPointMake(830.0 * 2, FLOOR_HEIGHT), 0.0f, true, false, true); 
+ 
+    // Second block 
+    createTarget("brick_platform-hd.png", CCPointMake(839.0 * 2, FLOOR_HEIGHT), 0.0f, false, true, false); 
+    createTarget("brick_2-hd.png", CCPointMake(854.0 * 2, FLOOR_HEIGHT+28.0), 0.0f, false, false, false); 
+    createTarget("brick_2-hd.png", CCPointMake(854.0 * 2, FLOOR_HEIGHT+28.0+92.0), 0.0f, false, false, false); 
+    createTarget("head_cat-hd.png", CCPointMake(8160.0 * 2, FLOOR_HEIGHT+28.0), 0.0f, true, false, true); 
+    createTarget("brick_2-hd.png", CCPointMake(909.0 * 2, FLOOR_HEIGHT+28.0), 0.0f, false, false, false); 
+    createTarget("brick_1-hd.png", CCPointMake(909.0 * 2, FLOOR_HEIGHT+28.0+92.0), 0.0f, false, false, false); 
+    createTarget("brick_1-hd.png", CCPointMake(909.0 * 2, FLOOR_HEIGHT+28.0+92.0+45.0), 0.0f, false, false, false); 
+    createTarget("brick_2-hd.png", CCPointMake(882.0 * 2, FLOOR_HEIGHT+108.0), 90.0f, false, false, false);  
+    return;
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
