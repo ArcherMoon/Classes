@@ -171,6 +171,8 @@ bool HelloWorld::init()
 
     /* 创建松果炮弹 */
     createBullets(4);
+    /* 将当前炮弹与弹臂焊接 */
+    attachBullet();
 
     /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
     this->schedule(schedule_selector(HelloWorld::tick));
@@ -276,6 +278,7 @@ void HelloWorld::createBullets(int count)
 
     /* 循环创建松果body，加入数组 */
     CCSprite *sprite = NULL;
+    b2Body * bullet = NULL;
     for (int i=0; i < count; i++, pos += delta)
     {
         sprite = CCSprite::create("acorn-hd.png");
@@ -287,7 +290,7 @@ void HelloWorld::createBullets(int count)
         bulletBodyDef.position.Set(pos/PTM_RATIO, (FLOOR_HEIGHT + 28.0f)/PTM_RATIO);
         bulletBodyDef.userData = (void *)sprite;
         bullet = world->CreateBody(&bulletBodyDef);
-        bullet->SetActive(false);
+        bullet->SetActive(false);       /* 虽然是动态物体，先不激活，提高效率 */
 
         b2CircleShape circle;
         circle.m_radius = 30.0f/PTM_RATIO;
@@ -301,8 +304,32 @@ void HelloWorld::createBullets(int count)
         
         bullets.push_back(bullet);      
     }
-
     return;
+}
+
+bool HelloWorld::attachBullet()
+{
+    /* 如果当前炮弹的序号大于等于总数，则返回 */
+    if (currentBullet >= bullets.size())
+    {
+        return false;
+    }
+    
+    /* 由当前炮弹序号找到当前炮弹 */
+    bulletBody = bullets.at(currentBullet++);
+    /* 移动到弹臂处 */
+    bulletBody->SetTransform(b2Vec2(490.0f/PTM_RATIO, (FLOOR_HEIGHT + 310.0f)/PTM_RATIO), 0.0f);
+    /* 激活，否则后面焊接没有效果 */
+    bulletBody->SetActive(true);
+
+    /* 创建焊接关节，将炮弹与弹臂焊接在一起 */
+    b2WeldJointDef weldJoitDef;
+    weldJoitDef.Initialize(bulletBody, armBody, b2Vec2(450.0f/PTM_RATIO, (FLOOR_HEIGHT + 310.0f)/PTM_RATIO));
+    weldJoitDef.collideConnected = false;   /* 设置为不碰撞的连接，继承自b2JointDef */
+    world->CreateJoint(&weldJoitDef);
+
+    /* 还有炮弹可用 */
+    return true;
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
