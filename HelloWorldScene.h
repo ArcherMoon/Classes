@@ -41,6 +41,9 @@ public:
     /* 创建一堆目标 */
     void createTarges();
 
+    /* 从新装载炮弹并将画面移到最左边 */
+    void resetBullet();
+
 private:
     b2World *world;                  /* 物理世界 */
     b2Body * groundBody;

@@ -112,7 +112,7 @@ bool HelloWorld::init()
     b2EdgeShape groundBox;
 
     CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
-    CCLOG("屏幕宽= %d, 高= %d.", screenSize.width, screenSize.height);
+    CCLOG("screenWidth = %f, screenHeight = %f.", screenSize.width, screenSize.height);
     /* bottom */
     groundBox.Set(b2Vec2(0, FLOOR_HEIGHT/PTM_RATIO), 
                           b2Vec2(screenSize.width * 2.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
@@ -126,11 +126,6 @@ bool HelloWorld::init()
      /* left */
     groundBox.Set(b2Vec2(0, 0), b2Vec2(0, screenSize.height/PTM_RATIO));
     groundBody->CreateFixture(&groundBox,0);
-
-     /* right */
-    groundBox.Set(b2Vec2(screenSize.width * 2.0f/PTM_RATIO,  0),
-                          b2Vec2(screenSize.width * 2.0f/PTM_RATIO,  screenSize.height/PTM_RATIO));
-    groundBody->CreateFixture(&groundBox,0);    
     
     /* 创造一般物体 */
     /* 创建弹臂精灵 */
@@ -178,6 +173,7 @@ bool HelloWorld::init()
     /* 将当前炮弹与弹臂焊接 */
     attachBullet();
 
+    /* 批量创建打击目标 */
     this->createTarges();
     /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
     this->schedule(schedule_selector(HelloWorld::tick));
@@ -211,6 +207,14 @@ void HelloWorld::tick(float dt)
                 releasingArm =false;
                 world->DestroyJoint(bulletJoint);
                 bulletJoint = NULL;
+
+                /* 炮弹射出几秒后，将画面移回最左边并重新装载炮弹 */
+                /* layer先执行延时动作，再执行装载炮弹动作 */
+                CCFiniteTimeAction * action = CCSequence::create(
+                        CCDelayTime::create(5.0f),
+                        CCCallFunc::create(this, callfunc_selector(HelloWorld::resetBullet)),
+                        NULL);
+                this->runAction(action);
             }
     }
 
@@ -455,6 +459,27 @@ void HelloWorld::createTarges()
     return;
 }
 
+void HelloWorld::resetBullet()
+{
+    /* 判断是否还有敌人 */
+    if (0 == enemies.size())
+    {
+        
+    }
+    else
+    {
+        /* 装载炮弹 */
+        if (true == attachBullet())
+        {
+            /* 切回画面最左边 */
+            CCAction * action = CCMoveTo::create(0.2f, CCPointZero);
+            this->runAction(action);
+        }
+        else
+        {
+        }
+    }
+}
 void HelloWorld::menuCloseCallback(CCObject* pSender)
 {
     CCDirector::sharedDirector()->end();
