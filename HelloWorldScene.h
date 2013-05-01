@@ -27,12 +27,18 @@ public:
     void ccTouchesMoved(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
     void ccTouchesEnded(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent);
 
+    /* 创建松果 */
+    void createBullets(int count);
+
 private:
     b2World *world;                  /* 物理世界 */
     b2Body * groundBody;
     b2Body *armBody;
     b2RevoluteJoint *armJoint;  /* 弹臂与地面的旋转关节 */
     b2MouseJoint *mouseJoint;   /* 鼠标关节，将物体移动到指定点 */
+    b2Body * bullet;                    /* 松果炮弹 */
+    std::vector<b2Body *> bullets;   /* 炮弹数组 */
+    int currentBullet;                       /* 当前松果序号 */
 };
 
 #endif // __HELLOWORLD_SCENE_H__

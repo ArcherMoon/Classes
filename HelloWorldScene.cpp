@@ -169,6 +169,9 @@ bool HelloWorld::init()
     mouseJoint = NULL;
     this->setTouchEnabled(true);
 
+    /* 创建松果炮弹 */
+    createBullets(4);
+
     /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
     this->schedule(schedule_selector(HelloWorld::tick));
     
@@ -251,6 +254,55 @@ void HelloWorld::ccTouchesEnded(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEve
         mouseJoint = NULL;
     }
     return;       
+}
+
+void HelloWorld::createBullets(int count)
+{
+    if (count <= 0)
+    {
+        return;
+    }
+    /* 当前松果在数组中的序号 */
+    currentBullet = 0;
+    /* 第一个松果的摆放位置，注意为物体的中心点 */
+    float pos = 140.0f;
+    float delta = 0.0f;
+
+    /*  计算从左边松鼠+半个松果到炮台-半个松果之间摆放所有松果的间距 */
+    if (count > 1)
+    {
+        delta = (320.0f - 30.0f - pos) / (count - 1);
+    }
+
+    /* 循环创建松果body，加入数组 */
+    CCSprite *sprite = NULL;
+    for (int i=0; i < count; i++, pos += delta)
+    {
+        sprite = CCSprite::create("acorn-hd.png");
+        this->addChild(sprite, 1);
+
+        b2BodyDef bulletBodyDef;
+        bulletBodyDef.type = b2_dynamicBody;
+        bulletBodyDef.bullet = true;  /* 高速物体会做持续碰撞检测(CCD)处理 */
+        bulletBodyDef.position.Set(pos/PTM_RATIO, (FLOOR_HEIGHT + 28.0f)/PTM_RATIO);
+        bulletBodyDef.userData = (void *)sprite;
+        bullet = world->CreateBody(&bulletBodyDef);
+        bullet->SetActive(false);
+
+        b2CircleShape circle;
+        circle.m_radius = 30.0f/PTM_RATIO;
+
+        b2FixtureDef bulletFixDef;
+        bulletFixDef.shape = &circle;
+        bulletFixDef.density = 0.8f;
+        bulletFixDef.friction = 0.99f;
+        bulletFixDef.restitution = 0.2f;
+        bullet->CreateFixture(&bulletFixDef);
+        
+        bullets.push_back(bullet);      
+    }
+
+    return;
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
