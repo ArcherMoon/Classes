@@ -31,6 +31,15 @@ public:
     void createBullets(int count);
     /* 将松果炮弹与弹臂焊接起来 */
     bool attachBullet();
+    /* 创建单个目标 */
+    void createTarget(const char *imageName,
+                               cocos2d::CCPoint position,
+                               float rotation,
+                               bool isCircle,
+                               bool isStatic,
+                               bool isEnemy);
+    /* 创建一堆目标 */
+    void createTarges();
 
 private:
     b2World *world;                  /* 物理世界 */
@@ -42,7 +51,9 @@ private:
     b2Body * bulletBody;                 /* 当前的松果炮弹 */
     std::vector<b2Body *> bullets;   /* 炮弹数组 */
     int currentBullet;                      /* 当前松果序号 */
-    bool releasingArm;                  /* 判断弹臂是否释放 */                                            
+    bool releasingArm;                  /* 判断弹臂是否释放 */      
+    std::vector<b2Body *> targets;       /* 打击目标，包括木板和敌人 */ 
+    std::vector<b2Body *> enemies;   /* 打击的敌人 */ 
 };
 
 #endif // __HELLOWORLD_SCENE_H__

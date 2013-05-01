@@ -177,6 +177,8 @@ bool HelloWorld::init()
     /* 将当前炮弹与弹臂焊接 */
     attachBullet();
 
+    this->createTarges();
+    this->setPosition(CCPointMake(-960, 0));
     /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
     this->schedule(schedule_selector(HelloWorld::tick));
     
@@ -366,6 +368,65 @@ bool HelloWorld::attachBullet()
 
     /* 还有炮弹可用 */
     return true;
+}
+
+void HelloWorld::createTarget(const char * imageName, CCPoint position, float rotation, bool isCircle, bool isStatic, bool isEnemy)
+{
+    /* 创建精灵 */
+    CCSprite *sprite = CCSprite::create(imageName);
+    this->addChild(sprite, 1);
+
+    /* 创建body */
+    b2BodyDef bodyDef;
+    /* sprite的getContentSize继承自ccNode */
+    bodyDef.position = b2Vec2((position.x + sprite->getContentSize().width /2.0f)/PTM_RATIO, 
+                                            (position.y + sprite->getContentSize().height /2.0f)/PTM_RATIO);
+    if (isStatic)
+    {
+        bodyDef.type = b2_staticBody;
+    }
+    else
+    {   
+         bodyDef.type = b2_dynamicBody;
+    }
+    bodyDef.angle = CC_DEGREES_TO_RADIANS(rotation);
+    bodyDef.userData = (void *)sprite;
+    b2Body * body = world->CreateBody(&bodyDef);
+
+    b2FixtureDef boxDef;
+    boxDef.density = 0.5f;
+
+    if (isEnemy)
+    {
+        boxDef.userData = (void *)1;    /* 指向地址为1的内存会不会很危险 */
+        enemies.push_back(body);
+    }
+    
+    if (isCircle)
+    {
+        b2CircleShape  circle;
+        circle.m_radius = sprite->getContentSize().width /2.0f/PTM_RATIO;
+        boxDef.shape = &circle;
+        body->CreateFixture(&boxDef);
+    }
+    else
+    {
+        b2PolygonShape box;
+        box.SetAsBox(sprite->getContentSize().width /2.0f/PTM_RATIO,
+                             sprite->getContentSize().height/2.0f/PTM_RATIO);
+        boxDef.shape = &box;
+        body->CreateFixture(&boxDef);
+    }
+
+    targets.push_back(body);
+
+    return;
+}
+
+void HelloWorld::createTarges()
+{
+    createTarget("brick_2-hd.png", CCPointMake(675.0 * 2, FLOOR_HEIGHT), 0.0f, false, false, false);
+        return;
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
