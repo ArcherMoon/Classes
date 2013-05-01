@@ -47,10 +47,13 @@ bool HelloWorld::init()
     // create menu, it's an autorelease object
     CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
     pMenu->setPosition( CCPointZero );
-    this->addChild(pMenu, 1);
+    this->addChild(pMenu, 11);
 
     /////////////////////////////
     // 3. add your codes below...
+
+    /* 弹臂处于未释放状态 */
+    releasingArm = false;
 
     CCSprite *sprite = NULL;
     /* 设置背景 */
@@ -161,7 +164,7 @@ bool HelloWorld::init()
     armJointDef.lowerAngle = CC_DEGREES_TO_RADIANS(9);       /* 最小角度,相对于y轴? */
     armJointDef.upperAngle = CC_DEGREES_TO_RADIANS(75);     /* 最大角度 */
     armJointDef.enableMotor = true;                                               /* 使能马达，或是弹簧? */
-    armJointDef.maxMotorTorque = 4800;                                       /* 最大扭矩 */
+    armJointDef.maxMotorTorque = 700;                                       /* 最大扭矩 */
     armJointDef.motorSpeed = -10;                                               /* 马达速度 */
     armJoint = (b2RevoluteJoint *)world->CreateJoint(&armJointDef);   
 
@@ -197,6 +200,18 @@ void HelloWorld::tick(float dt)
             sprite->setRotation(-1 * CC_RADIANS_TO_DEGREES(body->GetAngle()));
         }
     }
+
+    /* 如果弹臂处于释放状态且小于一定角度，则删除焊接关节 */
+    if (releasingArm && NULL != bulletJoint)
+    {
+            if (armJoint->GetJointAngle() <= CC_DEGREES_TO_RADIANS(10))
+            {
+                releasingArm =false;
+                world->DestroyJoint(bulletJoint);
+                bulletJoint = NULL;
+            }
+    }
+
 }
 
 void HelloWorld::ccTouchesBegan(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent)
@@ -252,6 +267,10 @@ void HelloWorld::ccTouchesEnded(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEve
     /* 销毁鼠标关节 */
     if (NULL != mouseJoint)
     {
+        if (armJoint->GetJointAngle() > CC_DEGREES_TO_RADIANS(20))
+        {
+            releasingArm = true;
+        }
         world->DestroyJoint(mouseJoint);
         mouseJoint = NULL;
     }
@@ -326,7 +345,7 @@ bool HelloWorld::attachBullet()
     b2WeldJointDef weldJoitDef;
     weldJoitDef.Initialize(bulletBody, armBody, b2Vec2(450.0f/PTM_RATIO, (FLOOR_HEIGHT + 310.0f)/PTM_RATIO));
     weldJoitDef.collideConnected = false;   /* 设置为不碰撞的连接，继承自b2JointDef */
-    world->CreateJoint(&weldJoitDef);
+    bulletJoint = (b2WeldJoint *)world->CreateJoint(&weldJoitDef);
 
     /* 还有炮弹可用 */
     return true;

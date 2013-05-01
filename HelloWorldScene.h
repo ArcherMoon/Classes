@@ -36,11 +36,13 @@ private:
     b2World *world;                  /* 物理世界 */
     b2Body * groundBody;
     b2Body *armBody;
-    b2RevoluteJoint *armJoint;  /* 弹臂与地面的旋转关节 */
-    b2MouseJoint *mouseJoint;   /* 鼠标关节，将物体移动到指定点 */
+    b2RevoluteJoint *armJoint;          /* 弹臂与地面的旋转关节 */
+    b2MouseJoint *mouseJoint;        /* 鼠标关节，将物体移动到指定点 */
+    b2WeldJoint *bulletJoint;           /* 炮弹和弹臂的焊接关节 */
     b2Body * bulletBody;                 /* 当前的松果炮弹 */
     std::vector<b2Body *> bullets;   /* 炮弹数组 */
-    int currentBullet;                       /* 当前松果序号 */
+    int currentBullet;                      /* 当前松果序号 */
+    bool releasingArm;                  /* 判断弹臂是否释放 */                                            
 };
 
 #endif // __HELLOWORLD_SCENE_H__
