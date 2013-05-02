@@ -168,13 +168,8 @@ bool HelloWorld::init()
     mouseJoint = NULL;
     this->setTouchEnabled(true);
 
-    /* 创建松果炮弹 */
-    createBullets(4);
-    /* 将当前炮弹与弹臂焊接 */
-    attachBullet();
-
-    /* 批量创建打击目标 */
-    this->createTarges();
+    /* 重置游戏 */
+    resetGame();
 
     /* 创建碰撞监听器，并由世界监听 */
     contactListener = new MyContactListener();  /* 注意销毁 */
@@ -531,7 +526,12 @@ void HelloWorld::resetBullet()
     /* 判断是否还有敌人 */
     if (0 == enemies.size())
     {
-        
+        /* 重置游戏 */
+        CCFiniteTimeAction *action = CCSequence::create(
+                CCDelayTime::create(2.0f),
+                CCCallFunc::create(this, callfunc_selector(HelloWorld::resetGame)),
+                NULL);
+        this->runAction(action);
     }
     else
     {
@@ -544,9 +544,56 @@ void HelloWorld::resetBullet()
         }
         else
         {
+            /* 重置游戏 */
+            CCFiniteTimeAction *action = CCSequence::create(
+                    CCDelayTime::create(2.0f),
+                    CCCallFunc::create(this, callfunc_selector(HelloWorld::resetGame)),
+                    NULL);
+            this->runAction(action);
         }
     }
 }
+
+void HelloWorld::resetGame()
+{
+    /* 如果有残余炮弹先清除 */
+    if (bullets.size() != 0)
+    {
+        for (vector<b2Body *>::iterator iter = bullets.begin();
+        iter != bullets.end();
+        ++iter)
+        {
+            b2Body * body = *iter;
+            this->removeChild((CCSprite *)body->GetUserData());
+            world->DestroyBody(body);
+        }   
+        bullets.clear();
+    }
+
+    /* 如果有残余敌人或砖块先先清除 */
+    if (targets.size() != 0)
+    {
+        for (vector<b2Body *>::iterator iter = targets.begin();
+        iter != targets.end();
+        ++iter)
+        {
+            b2Body * body = *iter;
+            this->removeChild((CCSprite *)body->GetUserData());
+            world->DestroyBody(body);
+        }   
+        targets.clear();
+        enemies.clear();
+    }
+    
+    /* 创建松果炮弹 */
+    createBullets(4);
+    /* 批量创建打击目标 */
+    createTarges();
+
+    /* 将当前炮弹与弹臂焊接 */
+    attachBullet();
+}
+
 void HelloWorld::menuCloseCallback(CCObject* pSender)
 {
     CCDirector::sharedDirector()->end();

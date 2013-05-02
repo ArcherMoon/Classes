@@ -44,6 +44,8 @@ public:
 
     /* 从新装载炮弹并将画面移到最左边 */
     void resetBullet();
+    /* 重置游戏 */
+    void resetGame();
 
 private:
     b2World *world;                  /* 物理世界 */
