@@ -207,7 +207,7 @@ void HelloWorld::tick(float dt)
     /* 如果弹臂处于释放状态且小于一定角度，则删除焊接关节 */
     if (releasingArm && NULL != bulletJoint)
     {
-            if (armJoint->GetJointAngle() <= CC_DEGREES_TO_RADIANS(10))
+            if (armJoint->GetJointAngle() <= CC_DEGREES_TO_RADIANS(30))
             {
                 releasingArm =false;
                 world->DestroyJoint(bulletJoint);
@@ -240,6 +240,51 @@ void HelloWorld::tick(float dt)
              this->setPosition(myPosition);
         }   
     }
+
+    /* --销毁碰撞的敌人-- */
+    /* 创建迭代器，遍历contacts销毁 */
+    std::set<b2Body *>::iterator pos;
+    for (pos = contactListener->contacts.begin();
+           pos != contactListener->contacts.end();
+           ++pos)
+    {
+        /* 取出指针指向的内容，即b2Body* */
+        b2Body *body = *pos;
+
+        /* 从targes中删除 */
+        for (vector<b2Body *>::iterator iter = targets.begin();
+                iter != targets.end();
+                ++iter)
+        {
+            if (body == *iter)
+            {
+                /* 保存删除元素的下一个元素指针 */
+                iter = targets.erase(iter);
+                break;
+            }
+        }   
+
+        /* 从enemies中删除 */
+        for (vector<b2Body *>::iterator iter = enemies.begin();
+                iter != enemies.end();
+                ++iter)
+        {
+            if (body == *iter)
+            {
+                iter = enemies.erase(iter);
+                break;
+            }
+        }        
+
+        /* 删除layer中对应的精灵 */
+        this->removeChild((CCSprite *)body->GetUserData());
+
+        /* 删除world中的body */
+        world->DestroyBody(body);
+    }
+    /* 清空contacts，用于保存下次碰撞后要摧毁的敌人 */
+    contactListener->contacts.clear();
+    
 }
 
 void HelloWorld::ccTouchesBegan(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent)
