@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include "Box2D/Box2D.h"
+#include "MyContactListener.h"
 
 class HelloWorld : public cocos2d::CCLayer
 {
@@ -57,6 +58,7 @@ private:
     bool releasingArm;                  /* 判断弹臂是否释放 */      
     std::vector<b2Body *> targets;       /* 打击目标，包括木板和敌人 */ 
     std::vector<b2Body *> enemies;   /* 打击的敌人 */ 
+    MyContactListener * contactListener;    /* 创建碰撞监听器指针 */
 };
 
 #endif // __HELLOWORLD_SCENE_H__

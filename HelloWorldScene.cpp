@@ -175,6 +175,11 @@ bool HelloWorld::init()
 
     /* 批量创建打击目标 */
     this->createTarges();
+
+    /* 创建碰撞监听器，并由世界监听 */
+    contactListener = new MyContactListener();  /* 注意销毁 */
+    world->SetContactListener(contactListener);
+    
     /* 设置定时器，定时更新物理世界的step，同时由物理世界的body更新cocos2d的精灵 */
     this->schedule(schedule_selector(HelloWorld::tick));
     
