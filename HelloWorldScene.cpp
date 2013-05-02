@@ -277,10 +277,27 @@ void HelloWorld::tick(float dt)
         }        
 
         /* 删除layer中对应的精灵 */
-        this->removeChild((CCSprite *)body->GetUserData());
+        CCNode *contactNode = (CCNode *)body->GetUserData();
+        CCPoint position = contactNode->getPosition();
+        this->removeChild(contactNode);
 
         /* 删除world中的body */
         world->DestroyBody(body);
+
+        /* --增加粒子效果-- */
+        CCParticleSun *explosion = CCParticleSun::create();
+        /* 增加纹理 */
+        explosion->setTexture(CCTextureCache::sharedTextureCache()->addImage("fire.png"));
+        /* 一些参数 */
+        explosion->retain(); 
+        explosion->initWithTotalParticles(200); 
+        explosion->setAutoRemoveOnFinish(true); 
+        explosion->setStartSizeVar(10.0f); 
+        explosion->setSpeed(70.0f); 
+        explosion->setAnchorPoint(CCPointMake(0.5f, 0.5f)); 
+        explosion->setPosition(position); 
+        explosion->setDuration(1.0f); 
+        this->addChild(explosion, 11);
     }
     /* 清空contacts，用于保存下次碰撞后要摧毁的敌人 */
     contactListener->contacts.clear();
