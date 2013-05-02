@@ -168,8 +168,13 @@ bool HelloWorld::init()
     mouseJoint = NULL;
     this->setTouchEnabled(true);
 
-    /* 重置游戏 */
-    resetGame();
+    /* 重置游戏,预想是在弹臂右偏9度的方向绑定，但游戏刚开始时，
+   * 弹臂还处在与Y轴0度的位置，需要修正一下，等一会，等到弹臂到偏9度的位置再绑定 */
+   CCFiniteTimeAction *action = CCSequence::create(
+            CCDelayTime::create(0.2f),
+            CCCallFunc::create(this, callfunc_selector(HelloWorld::resetGame)),
+            NULL);
+    this->runAction(action);
 
     /* 创建碰撞监听器，并由世界监听 */
     contactListener = new MyContactListener();  /* 注意销毁 */
@@ -422,7 +427,7 @@ bool HelloWorld::attachBullet()
     /* 由当前炮弹序号找到当前炮弹 */
     bulletBody = bullets.at(currentBullet++);
     /* 移动到弹臂处 */
-    bulletBody->SetTransform(b2Vec2(490.0f/PTM_RATIO, (FLOOR_HEIGHT + 310.0f)/PTM_RATIO), 0.0f);
+    bulletBody->SetTransform(b2Vec2(450.0f/PTM_RATIO, (FLOOR_HEIGHT + 310.0f)/PTM_RATIO), 0.0f);
     /* 激活，否则后面焊接没有效果 */
     bulletBody->SetActive(true);
 
