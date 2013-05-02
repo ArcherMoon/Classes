@@ -590,8 +590,15 @@ void HelloWorld::resetGame()
     /* 批量创建打击目标 */
     createTarges();
 
-    /* 将当前炮弹与弹臂焊接 */
-    attachBullet();
+    /* 先移动到屏幕右边(实际是让layer左移)，然后将炮弹与弹臂焊接，停1s，
+   * 让玩家思考，然后重新回到屏幕左边(实际是让layer再右移) */
+   CCFiniteTimeAction *action = CCSequence::create(
+            CCMoveTo::create(1.5f, CCPointMake(-960, 0)),
+            CCCallFunc::create(this, callfunc_selector(HelloWorld::attachBullet)),
+            CCDelayTime::create(1.0f),
+            CCMoveTo::create(1.5f, CCPointZero),
+            NULL);
+    this->runAction(action);
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
