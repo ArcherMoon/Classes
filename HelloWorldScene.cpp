@@ -42,7 +42,7 @@ bool HelloWorld::init()
                                         "CloseSelected.png",
                                         this,
                                         menu_selector(HelloWorld::menuCloseCallback) );
-    pCloseItem->setPosition( ccp(CCDirector::sharedDirector()->getWinSize().width - 20, 20) );
+    pCloseItem->setPosition( ccp(CCDirector::sharedDirector()->getWinSize().width - 20, 70) );
 
     // create menu, it's an autorelease object
     CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
@@ -100,6 +100,7 @@ bool HelloWorld::init()
     gravtity.Set(0.0f, -10.0f);
     world = new b2World(gravtity);
     world->SetAllowSleeping(true);
+    world->SetContinuousPhysics(true);
 
     /* 创造地面物体，
    * 定义物体(BodyDef)，由world根据BodyDef创造body，创造形状(shape)，
@@ -320,7 +321,7 @@ void HelloWorld::ccTouchesBegan(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEve
     b2Vec2 target = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
 
     /* 创建鼠标关节 */
-    if (target.x < armBody->GetWorldCenter().x + 150.0f/PTM_RATIO)
+    if (target.x < armBody->GetWorldCenter().x + 50.0f/PTM_RATIO)
     {
         b2MouseJointDef mouceJointDef;
         /* 这里的bodyA,bodyB是结构体b2MouseJointDef从b2JointDef继承而来 */
@@ -608,6 +609,8 @@ void HelloWorld::resetGame()
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
 {
+    /* 删除世界 */
+    CC_SAFE_DELETE(world);
     CCDirector::sharedDirector()->end();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
