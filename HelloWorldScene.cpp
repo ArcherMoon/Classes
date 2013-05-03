@@ -160,8 +160,8 @@ bool HelloWorld::init()
     armJointDef.lowerAngle = CC_DEGREES_TO_RADIANS(9);       /* 最小角度,相对于y轴? */
     armJointDef.upperAngle = CC_DEGREES_TO_RADIANS(75);     /* 最大角度 */
     armJointDef.enableMotor = true;                                               /* 使能马达，或是弹簧? */
-    armJointDef.maxMotorTorque = 700;                                       /* 最大扭矩 */
-    armJointDef.motorSpeed = -10;                                               /* 马达速度 */
+    armJointDef.maxMotorTorque = 1500;                                       /* 最大扭矩，马达转动是需要扭动力的，越大则反弹力越大，抛出时的速度越大 */
+    armJointDef.motorSpeed = -10;                                               /* 马达速度,1s内转多少度，弧度制 */
     armJoint = (b2RevoluteJoint *)world->CreateJoint(&armJointDef);   
 
     /* 初始化鼠标关节指针为空，使能触摸 */
@@ -327,7 +327,7 @@ void HelloWorld::ccTouchesBegan(cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEve
         mouceJointDef.bodyA = groundBody;
         mouceJointDef.bodyB = armBody;
         mouceJointDef.target = target;
-        mouceJointDef.maxForce = 2000;
+        mouceJointDef.maxForce = 2000;  /* 过小则不能拉动弹臂，不影响弹臂的反弹力 */
         mouseJoint = (b2MouseJoint *)world->CreateJoint(&mouceJointDef);
     }
 }
